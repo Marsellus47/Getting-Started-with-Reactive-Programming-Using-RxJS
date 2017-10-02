@@ -1,59 +1,40 @@
 import { Observable } from 'rxjs';
+/* import { Observable } from 'rxjs/Observable';
+import 'rxjs/add/observable/from';
+import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/filter'; */
 
-let output = document.getElementById('output');
-let button = document.getElementById('button');
+import { MyObserver } from './my-observer';
 
-let click = Observable.fromEvent(button, 'click');
+let numbers = [1, 5, 10];
+let source = Observable.from(numbers);
 
-function load(url: string) {
-  return Observable.create(observer => {
-    let xhr = new XMLHttpRequest();
+source.subscribe(new MyObserver<number>());
 
-    xhr.addEventListener('load', () => {
-      if (xhr.status >= 200 && xhr.status < 400) {
-        let data = JSON.parse(xhr.responseText);
-        observer.next(data);
-        observer.complete();
-      } else {
-        observer.error(xhr.statusText);
-      }
-    });
-
-    xhr.open('GET', url);
-    xhr.send();
-  }).retryWhen(retryStrategy({ attempts: 3, delay: 1500 }));
-}
-
-function retryStrategy({ attempts = 5, delay = 1000 }) {
-  return function (errors) {
-    return errors
-      .scan((acc, value) => {
-        console.log(acc, value);
-        return acc + 1;
-      }, 1)
-      .takeWhile(acc => acc <= attempts)
-      .delay(delay);
+source = Observable.create(observer => {
+  /*for (let n of numbers.reverse()) {
+    observer.next(n);
   }
-}
 
-function renderMovies(movies) {
-  movies.forEach(m => {
-    let div = document.createElement('div');
-    div.innerText = m.title;
-    output.appendChild(div);
-  });
-}
+  observer.complete();*/
 
-function loadWithFetch(url: string) {
-  return Observable.defer(() => Observable.fromPromise(fetch(url)
-    .then(response => response.json())));
-}
+  let index = 0;
+  let produceValue = () => {
+    observer.next(numbers[index++]);
 
-loadWithFetch('03-movies.json');
+    if (index < numbers.length) {
+      setTimeout(produceValue, 250);
+    } else {
+      observer.complete();
+    }
+  }
 
-click.flatMap(e => loadWithFetch('03-movies.json'))
-  .subscribe(
-    renderMovies,
-    error => console.log('error:', error),
-    () => console.log('complete')
-  );
+  produceValue();
+}).map(n => n * 2)
+  .filter(n => n > 4);
+
+source.subscribe(
+  value => console.log('Function - value:', value),
+  error => console.log('Function - error:', error),
+  () => console.log('Function - complete')
+);
