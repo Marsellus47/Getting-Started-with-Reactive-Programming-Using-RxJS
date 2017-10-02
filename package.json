@@ -23,7 +23,7 @@
     "rxjs": "^5.4.3"
   },
   "devDependencies": {
-    "@types/es6-shim": "^0.31.35",
+    "@types/whatwg-streams": "0.0.4",
     "ts-loader": "^2.3.7",
     "typescript": "^2.5.3",
     "webpack": "^3.6.0",

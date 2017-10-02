@@ -1,7 +1,7 @@
 module.exports = {
-  entry: "./main",
+  entry: "./chapter-2/main",
   output: {
-    filename: "app.js"
+    filename: "./chapter-2/app.js"
   },
   module: {
     loaders: [
